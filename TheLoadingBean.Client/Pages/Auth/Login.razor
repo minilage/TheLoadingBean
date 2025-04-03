@@ -1,0 +1,50 @@
+@page "/login"
+@using TheLoadingBean.Shared.DTOs
+@using TheLoadingBean.Client.Services
+@using MudBlazor
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Logga in</MudText>
+            <EditForm Model="@loginDto" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+                <MudTextField T="string" @bind="loginDto.Email" Label="Email" Required="true" RequiredError="Email är obligatoriskt" />
+                <MudTextField T="string" @bind="loginDto.Password" Label="Lösenord" Required="true" RequiredError="Lösenord är obligatoriskt" InputType="InputType.Password" />
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="mt-4">Logga in</MudButton>
+            </EditForm>
+            <MudText Align="Align.Center" Class="mt-4">
+                Har du inget konto? <MudLink Href="/register">Registrera dig här</MudLink>
+            </MudText>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private LoginDto loginDto = new();
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var token = await AuthService.LoginAsync(loginDto);
+
+            if (!string.IsNullOrWhiteSpace(token?.Token))
+            {
+                Snackbar.Add("Inloggning lyckades!", Severity.Success);
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Snackbar.Add("Felaktigt användarnamn eller lösenord", Severity.Error);
+            }
+        }
+        catch
+        {
+            Snackbar.Add("Ett fel uppstod vid inloggning", Severity.Error);
+        }
+    }
+} 

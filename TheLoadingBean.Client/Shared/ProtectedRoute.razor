@@ -1,0 +1,38 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using TheLoadingBean.Client.Services
+@using TheLoadingBean.Shared.DTOs
+@inject IAuthService AuthService
+@inject NavigationManager NavigationManager
+
+<AuthorizeView Roles="@Roles">
+    <Authorized>
+        @ChildContent
+    </Authorized>
+    <NotAuthorized>
+        @if (!AuthService.IsAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            <div class="container mt-5">
+                <div class="alert alert-danger">
+                    <h4 class="alert-heading">Access Denied</h4>
+                    <p>You don't have permission to access this page.</p>
+                    <hr>
+                    <p class="mb-0">
+                        <a href="/" class="btn btn-primary">Return to Home</a>
+                    </p>
+                </div>
+            </div>
+        }
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [Parameter]
+    public RenderFragment ChildContent { get; set; } = default!;
+
+    [Parameter]
+    public string? Roles { get; set; }
+}

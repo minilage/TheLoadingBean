@@ -1,0 +1,144 @@
+@page "/admin/products"
+@using TheLoadingBean.Shared.DTOs
+@using TheLoadingBean.Client.Services
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using TheLoadingBean.Client.Components
+@inject IProductService ProductService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@attribute [Authorize(Roles = "Admin")]
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16">
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h4" Align="Align.Center" GutterBottom="true">Produkthantering</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenAddDialog" Class="mb-4">Lägg till produkt</MudButton>
+            <MudTable Items="@products" Dense="true" Hover="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Namn</MudTh>
+                    <MudTh>Beskrivning</MudTh>
+                    <MudTh>Pris</MudTh>
+                    <MudTh>Kategori</MudTh>
+                    <MudTh>Status</MudTh>
+                    <MudTh>Åtgärder</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Namn">@context.Name</MudTd>
+                    <MudTd DataLabel="Beskrivning">@context.Description</MudTd>
+                    <MudTd DataLabel="Pris">@context.Price.ToString("C")</MudTd>
+                    <MudTd DataLabel="Kategori">@context.Category</MudTd>
+                    <MudTd DataLabel="Status">
+                        <MudChip T="bool" Color="@(context.IsDiscontinued ? Color.Error : Color.Success)" Size="Size.Small">
+                            @(context.IsDiscontinued ? "Utsålt" : "Tillgänglig")
+                        </MudChip>
+                    </MudTd>
+                    <MudTd DataLabel="Åtgärder">
+                        <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="Color.Primary" OnClick="@(() => OpenEditDialog(context))" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(() => OpenDeleteDialog(context))" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudCardContent>
+    </MudCard>
+</MudContainer>
+
+@code {
+    private List<ProductResponseDto> products = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProducts();
+    }
+
+    private async Task LoadProducts()
+    {
+        try
+        {
+            products = await ProductService.GetAllProductsAsync();
+        }
+        catch
+        {
+            Snackbar.Add("Kunde inte ladda produkter", Severity.Error);
+        }
+    }
+
+    private async Task OpenAddDialog()
+    {
+        var parameters = new DialogParameters { ["Product"] = new CreateProductDto() };
+        var dialog = await DialogService.ShowAsync<ProductDialog>("Lägg till produkt", parameters);
+        var resultNullable = await dialog.Result;
+
+        if (resultNullable is not DialogResult result || result.Canceled || result.Data is not CreateProductDto newProduct)
+            return;
+
+        try
+        {
+            await ProductService.CreateProductAsync(newProduct);
+            Snackbar.Add("Produkt tillagd", Severity.Success);
+            await LoadProducts();
+        }
+        catch
+        {
+            Snackbar.Add("Kunde inte lägga till produkt", Severity.Error);
+        }
+    }
+
+    private async Task OpenEditDialog(ProductResponseDto? product)
+    {
+        if (product is null) return;
+
+        var updateDto = new UpdateProductDto
+            {
+                ProductNumber = product.ProductNumber,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price,
+                Category = product.Category,
+                IsAvailable = product.IsAvailable,
+                IsDiscontinued = product.IsDiscontinued
+            };
+
+        var parameters = new DialogParameters { ["Product"] = updateDto };
+        var dialog = await DialogService.ShowAsync<ProductDialog>("Redigera produkt", parameters);
+        var resultNullable = await dialog.Result;
+
+        if (resultNullable is not DialogResult result || result.Canceled || result.Data is not UpdateProductDto updatedProduct)
+            return;
+
+        try
+        {
+            await ProductService.UpdateProductAsync(product.Id, updatedProduct);
+            Snackbar.Add("Produkt uppdaterad", Severity.Success);
+            await LoadProducts();
+        }
+        catch
+        {
+            Snackbar.Add("Kunde inte uppdatera produkt", Severity.Error);
+        }
+    }
+
+    private async Task OpenDeleteDialog(ProductResponseDto? product)
+    {
+        if (product is null) return;
+
+        var parameters = new DialogParameters { ["Message"] = $"Är du säker på att du vill ta bort {product.Name}?" };
+        var dialog = await DialogService.ShowAsync<ConfirmDialog>("Bekräfta borttagning", parameters);
+        var resultNullable = await dialog.Result;
+
+        if (resultNullable is not DialogResult result || result.Canceled)
+            return;
+
+        try
+        {
+            await ProductService.DeleteProductAsync(product.Id);
+            Snackbar.Add("Produkt borttagen", Severity.Success);
+            await LoadProducts();
+        }
+        catch
+        {
+            Snackbar.Add("Kunde inte ta bort produkt", Severity.Error);
+        }
+    }
+}

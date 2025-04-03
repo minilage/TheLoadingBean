@@ -1,0 +1,26 @@
+@using TheLoadingBean.Shared.DTOs
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+        <MudTextField T="string" @bind-Value="Product.Name" Label="Namn" Required="true" RequiredError="Namn är obligatoriskt" />
+        <MudTextField T="string" @bind-Value="Product.Description" Label="Beskrivning" Required="true" RequiredError="Beskrivning är obligatoriskt" />
+        <MudNumericField T="decimal" @bind-Value="Product.Price" Label="Pris" Required="true" RequiredError="Pris är obligatoriskt" />
+        <MudTextField T="string" @bind-Value="Product.Category" Label="Kategori" Required="true" RequiredError="Kategori är obligatoriskt" />
+        <MudCheckBox T="bool" @bind-Value="Product.IsAvailable" Label="Tillgänglig" />
+        <MudCheckBox T="bool" @bind-Value="Product.IsDiscontinued" Label="Utgått" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="Cancel">Avbryt</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Spara</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ProductDto Product { get; set; } = new();
+
+    void Submit() => MudDialog.Close(DialogResult.Ok(Product));
+    void Cancel() => MudDialog.Cancel();
+} 
