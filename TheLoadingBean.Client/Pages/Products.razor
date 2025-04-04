@@ -1,0 +1,74 @@
+﻿@page "/products"
+@inject IProductService ProductService
+@inject IDialogService DialogService
+
+<MudContainer MaxWidth="MaxWidth.False">
+    <MudText Typo="Typo.h4" Class="popular-title mt-4">All Products</MudText>
+
+    <MudPaper Class="p-4 mb-4">
+        <MudGrid>
+            <MudItem xs="12" sm="6" md="6">
+                <MudTextField @bind-Value="searchTerm" Label="Search by name"
+                Variant="Variant.Outlined" Adornment="Adornment.Start"
+                AdornmentIcon="@Icons.Material.Filled.Search" Class="w-100" />
+            </MudItem>
+            <MudItem xs="12" sm="6" md="6">
+                <MudSelect T="string" @bind-Value="sortBy" Label="Sort by"
+                Variant="Variant.Outlined" Class="w-100">
+                    <MudSelectItem Value="@nameof(ProductDto.Name)">Name (A-Z)</MudSelectItem>
+                    <MudSelectItem Value="@nameof(ProductDto.Price)">Price (Low → High)</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+    <MudGrid>
+        @foreach (var product in FilteredProducts)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <div class="product-card mb-4">
+                    <img src="@product.ImageUrl" alt="@product.Name" class="product-image" />
+                    <MudText Typo="Typo.h6">@product.Name</MudText>
+                    <MudText Typo="Typo.body2" Class="mb-2">@product.Description</MudText>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" OnClick="@(() => ShowDetails(product))">
+                        View Details
+                    </MudButton>
+                </div>
+            </MudItem>
+        }
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<ProductDto> products = new();
+    private string searchTerm = "";
+    private string sortBy = "name";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Konverterar ProductResponseDto → ProductDto
+        var responseList = await ProductService.GetAllProductsAsync();
+        products = responseList.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                Category = p.Category,
+                IsAvailable = p.IsAvailable,
+                IsDiscontinued = p.IsDiscontinued,
+                ImageUrl = "/images/default.png" // 💡 justera om du har bilder sparade
+            }).ToList();
+    }
+
+    private IEnumerable<ProductDto> FilteredProducts => products
+        .Where(p => string.IsNullOrWhiteSpace(searchTerm) || p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+        .OrderBy<ProductDto, object>(p => sortBy == nameof(ProductDto.Price) ? p.Price : p.Name);
+
+    private async Task ShowDetails(ProductDto product)
+    {
+        var parameters = new DialogParameters { ["Product"] = product };
+        var options = new DialogOptions { CloseOnEscapeKey = true, MaxWidth = MaxWidth.Medium, FullWidth = true };
+        await DialogService.ShowAsync<ProductDetailsDialog>("", parameters, options);
+    }
+}

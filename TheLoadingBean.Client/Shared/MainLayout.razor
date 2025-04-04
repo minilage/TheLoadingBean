@@ -2,51 +2,63 @@
 @inject NavigationManager NavigationManager
 @inject IAuthService AuthService
 
-<MudLayout>
+<MudThemeProvider>
+    <MudLayout>
 
-    <!-- Flyttad meny i stället för MudAppBar -->
-    <MudPaper Elevation="4" Class="mud-appbar px-4 d-flex justify-between align-center">
-        <MudText Typo="Typo.h6" Class="text-white py-2">☕ The Loading Bean</MudText>
+        <!-- Navbar -->
+        <MudPaper Elevation="4" Class="mud-appbar px-4 d-flex justify-between align-center">
+            <MudText Typo="Typo.h6" Class="text-white py-2">☕ The Loading Bean</MudText>
 
-        <MudNavMenu Class="d-flex align-center">
-            <MudNavLink Href="/" Match="NavLinkMatch.All" Class="mx-2">Home</MudNavLink>
-            <MudNavLink Href="/products" Class="mx-2">Products</MudNavLink>
-            <MudNavLink Href="/about" Class="mx-2">About</MudNavLink>
-            <MudNavLink Href="/cart" Class="mx-2">Cart</MudNavLink>
+            <MudNavMenu Class="d-flex align-center">
+                <MudNavLink Href="/" Match="NavLinkMatch.All" Class="mx-2">Home</MudNavLink>
+                <MudNavLink Href="/products" Class="mx-2">Products</MudNavLink>
+                <MudNavLink Href="/about" Class="mx-2">About</MudNavLink>
+                <MudNavLink Href="/cart" Class="mx-2">Cart</MudNavLink>
 
-            <AuthorizeView>
-                <Authorized>
-                    @if (AuthService.IsAdmin)
-                    {
-                        <MudNavLink Href="/admin" Class="mx-2">Admin</MudNavLink>
-                    }
-                    else
-                    {
-                        <MudNavLink Href="/orders" Class="mx-2">My Orders</MudNavLink>
-                    }
+                <AuthorizeView>
+                    <Authorized>
+                        @if (AuthService.IsAdmin)
+                        {
+                            <MudNavLink Href="/admin" Class="mx-2">Admin</MudNavLink>
+                        }
+                        else
+                        {
+                            <MudNavLink Href="/orders" Class="mx-2">My Orders</MudNavLink>
+                        }
 
-                    <MudText Class="mx-3 mt-1 text-white" Typo="Typo.subtitle2">Hi, @context.User.Identity?.Name</MudText>
-                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="HandleLogout" Size="Size.Small" Class="mx-2">Logout</MudButton>
-                </Authorized>
-                <NotAuthorized>
-                    <MudNavLink Href="/login" Class="mx-2">Login</MudNavLink>
-                    <MudNavLink Href="/register" Class="mx-2">Register</MudNavLink>
-                </NotAuthorized>
-            </AuthorizeView>
-        </MudNavMenu>
-    </MudPaper>
+                        <MudText Class="mx-3 mt-1 text-white" Typo="Typo.subtitle2">
+                            Hi, @context.User.Identity?.Name
+                        </MudText>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="HandleLogout" Size="Size.Small" Class="mx-2">
+                            Logout
+                        </MudButton>
+                    </Authorized>
+                    <NotAuthorized>
+                        <MudNavLink Href="/login" Class="mx-2">Login</MudNavLink>
+                        <MudNavLink Href="/register" Class="mx-2">Register</MudNavLink>
+                    </NotAuthorized>
+                </AuthorizeView>
+            </MudNavMenu>
+        </MudPaper>
 
-    <!-- Huvudinnehåll -->
-    <MudMainContent Class="p-0 m-0">
-        @Body
-    </MudMainContent>
+        <!-- Innehåll -->
+        <MudMainContent Class="p-0 m-0">
+            <MudSnackbarProvider>
+                <MudDialogProvider>
+                    <MudPopoverProvider>
+                        @Body
+                    </MudPopoverProvider>
+                </MudDialogProvider>
+            </MudSnackbarProvider>
+        </MudMainContent>
 
-    <!-- Footer -->
-    <MudContainer Class="footer-section">
-        <MudText Typo="Typo.caption">© 2025 The Loading Bean. Coded with ☕ by Tina.</MudText>
-    </MudContainer>
+        <!-- Footer -->
+        <MudContainer Class="footer-section">
+            <MudText Typo="Typo.caption">© 2025 The Loading Bean. Coded with ☕ by Tina.</MudText>
+        </MudContainer>
 
-</MudLayout>
+    </MudLayout>
+</MudThemeProvider>
 
 @code {
     private async Task HandleLogout()

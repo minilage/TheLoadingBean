@@ -1,8 +1,7 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using TheLoadingBeanAPI.Data;
-using TheLoadingBeanAPI.Repositories;
 using TheLoadingBeanAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -63,6 +62,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 // Register services
+builder.Services.Configure<MongoDbSettings>(
+    builder.Configuration.GetSection("MongoDbSettings"));
+
 builder.Services.AddScoped<IUnitOfWork, MongoUnitOfWork>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 

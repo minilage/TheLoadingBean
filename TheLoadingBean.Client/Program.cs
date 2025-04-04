@@ -14,18 +14,20 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-// Add MudBlazor services
+// Register MudBlazor
 builder.Services.AddMudServices();
 
-// Add Blazored packages
+// Register Toasts and Storage
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredToast();
 
-// Add authentication services
+// Register Services
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<ICartService, CartService>();
+
+// Register Authentication
+builder.Services.AddAuthorizationCore();
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-
-// Add authorization
-builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();
