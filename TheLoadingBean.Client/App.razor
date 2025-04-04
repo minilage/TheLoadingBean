@@ -1,18 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
-@using Microsoft.AspNetCore.Components.WebAssembly.Http
-@using Microsoft.JSInterop
-@using TheLoadingBean.Client
-@using TheLoadingBean.Client.Shared
-@using TheLoadingBean.Client.Pages
-@using TheLoadingBean.Client.Services
-@using TheLoadingBean.Shared.DTOs
 @using MudBlazor
-
-<MudThemeProvider />
-<MudDialogProvider />
-<MudSnackbarProvider />
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
@@ -32,18 +19,13 @@
                     <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
                 </Authorizing>
             </AuthorizeRouteView>
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
-            <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
                 <MudContainer MaxWidth="MaxWidth.Small" Class="mt-16">
                     <MudText Typo="Typo.h3" Align="Align.Center" GutterBottom="true">404</MudText>
                     <MudText Typo="Typo.h5" Align="Align.Center" GutterBottom="true">Sidan kunde inte hittas</MudText>
-                    <MudText Align="Align.Center">
-                        Tyvärr finns inte sidan du letar efter.
-                    </MudText>
+                    <MudText Align="Align.Center">Tyvärr finns inte sidan du letar efter.</MudText>
                 </MudContainer>
             </LayoutView>
         </NotFound>
@@ -53,8 +35,7 @@
 @code {
     public class RedirectToLogin : ComponentBase
     {
-        [Inject]
-        protected NavigationManager? NavigationManager { get; set; }
+        [Inject] protected NavigationManager? NavigationManager { get; set; }
 
         protected override void OnInitialized()
         {

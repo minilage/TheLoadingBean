@@ -1,40 +1,53 @@
 @inherits LayoutComponentBase
-@using Microsoft.AspNetCore.Components.Authorization
 @using TheLoadingBean.Client.Services
-@using TheLoadingBean.Shared.DTOs
 @inject IAuthService AuthService
 @inject NavigationManager NavigationManager
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudLayout>
 
-    <main>
-        <div class="top-row px-4">
+    <MudAppBar Color="Color.Primary" Elevation="4">
+        <MudText Typo="Typo.h6" Class="ml-2">The Loading Bean ☕</MudText>
+
+        <MudSpacer />
+
+        <MudNavMenu Class="d-none d-md-flex">
+            <MudNavLink Href="/" Match="NavLinkMatch.All">Home</MudNavLink>
+            <MudNavLink Href="/products">Products</MudNavLink>
+            <MudNavLink Href="/about">About Us</MudNavLink>
+            <MudNavLink Href="/cart">Cart</MudNavLink>
+
             <AuthorizeView>
                 <Authorized>
-                    <div class="d-flex align-items-center">
-                        <span class="me-3">Welcome, @context.User.Identity?.Name!</span>
-                        <button class="btn btn-outline-light btn-sm" @onclick="HandleLogout">
-                            Logout
-                        </button>
-                    </div>
+                    @if (AuthService.IsAdmin)
+                    {
+                        <MudNavLink Href="/admin">Admin</MudNavLink>
+                    }
+                    else
+                    {
+                        <MudNavLink Href="/orders">My Orders</MudNavLink>
+                    }
+
+                    <MudText Class="mx-2 mt-1" Typo="Typo.subtitle2">Hej, @context.User.Identity?.Name</MudText>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="HandleLogout" Size="Size.Small">Logout</MudButton>
                 </Authorized>
                 <NotAuthorized>
-                    <div class="d-flex align-items-center">
-                        <a href="/login" class="btn btn-outline-light btn-sm me-2">Login</a>
-                        <a href="/register" class="btn btn-light btn-sm">Register</a>
-                    </div>
+                    <MudNavLink Href="/login">Login</MudNavLink>
+                    <MudNavLink Href="/register">Register</MudNavLink>
                 </NotAuthorized>
             </AuthorizeView>
-        </div>
+        </MudNavMenu>
+    </MudAppBar>
 
-        <article class="content px-4">
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.False" Class="px-4 py-6">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+
+</MudLayout>
+
+<MudDialogProvider />
+<MudSnackbarProvider />
 
 @code {
     private async Task HandleLogout()
@@ -42,4 +55,4 @@
         await AuthService.LogoutAsync();
         NavigationManager.NavigateTo("/");
     }
-} 
+}
