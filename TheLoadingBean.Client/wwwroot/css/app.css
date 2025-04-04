@@ -11,10 +11,11 @@ html, body {
 .mud-appbar {
     background-color: #1e392a !important;
     color: white;
-    padding: 0.5rem 1rem;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    z-index: 1100;
+    padding: 0.3rem 1rem;
+    margin-bottom: 0;
 }
 
 .mud-nav-link {
@@ -44,7 +45,7 @@ html, body {
 .hero-section {
     position: relative;
     background-color: #1e392a;
-    padding: 2rem 0;
+    padding-top: 1rem 0;
     overflow: hidden;
     border-bottom: 4px solid #795548;
     z-index: 0;

@@ -4,9 +4,10 @@
 
 <MudLayout>
 
-    <MudAppBar Elevation="4" Class="mud-appbar px-4">
-        <MudText Typo="Typo.h6" Class="text-white">☕ The Loading Bean</MudText>
-        <MudSpacer />
+    <!-- Flyttad meny i stället för MudAppBar -->
+    <MudPaper Elevation="4" Class="mud-appbar px-4 d-flex justify-between align-center">
+        <MudText Typo="Typo.h6" Class="text-white py-2">☕ The Loading Bean</MudText>
+
         <MudNavMenu Class="d-flex align-center">
             <MudNavLink Href="/" Match="NavLinkMatch.All" Class="mx-2">Home</MudNavLink>
             <MudNavLink Href="/products" Class="mx-2">Products</MudNavLink>
@@ -33,12 +34,14 @@
                 </NotAuthorized>
             </AuthorizeView>
         </MudNavMenu>
-    </MudAppBar>
+    </MudPaper>
 
+    <!-- Huvudinnehåll -->
     <MudMainContent Class="p-0 m-0">
         @Body
     </MudMainContent>
 
+    <!-- Footer -->
     <MudContainer Class="footer-section">
         <MudText Typo="Typo.caption">© 2025 The Loading Bean. Coded with ☕ by Tina.</MudText>
     </MudContainer>
